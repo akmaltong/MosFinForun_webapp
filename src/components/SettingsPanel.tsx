@@ -13,11 +13,11 @@ export default function SettingsPanel() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('effects')
 
   const resetAll = () => {
-    store.setToneMappingExposure(1.4)
+    store.setToneMappingExposure(1.0)
     store.setToneMapping('ACES')
-    store.setMaterialColor('#bcbcbc')
-    store.setMaterialRoughness(0.25)
-    store.setMaterialMetalness(0.02)
+    store.setMaterialColor('#d4d4d4')
+    store.setMaterialRoughness(0.7)
+    store.setMaterialMetalness(0.05)
     store.setBloomIntensity(0.5)
     store.setBloomThreshold(0.9)
     store.setVignetteIntensity(0.35)

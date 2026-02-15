@@ -3,11 +3,12 @@ import { useAppStore } from '../store/appStore'
 export default function AdjustmentsPanel() {
   const store = useAppStore()
   const setActiveBottomPanel = useAppStore(state => state.setActiveBottomPanel)
+  const isBaked = store.lightingMode === 'baked'
 
   return (
     <div
       className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-[60] pointer-events-auto select-none w-[95%] sm:w-auto max-w-[900px] shadow-2xl m-2"
-      style={{ 
+      style={{
         backgroundColor: 'rgba(40, 40, 40, 0.4)',
         backdropFilter: 'blur(12px) saturate(180%) brightness(0.7)',
         WebkitBackdropFilter: 'blur(12px) saturate(180%) brightness(0.7)',
@@ -18,10 +19,6 @@ export default function AdjustmentsPanel() {
       }}
     >
       <style>{`
-        @keyframes slideUpIn {
-          from { opacity: 0; transform: translate(-50%, 30px); }
-          to { opacity: 1; transform: translate(-50%, 0); }
-        }
         .settings-slider {
           -webkit-appearance: none;
           appearance: none;
@@ -56,41 +53,41 @@ export default function AdjustmentsPanel() {
         }
       `}</style>
 
-      {/* Main panel */}
-      <div
-        style={{
-          maxWidth: '700px',
-          position: 'relative',
-        }}
-      >
-        {/* Single column layout */}
+      <div style={{ maxWidth: '700px', position: 'relative' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Environment section */}
           <div>
             <div style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px' }}>
               Окружение
             </div>
-            
-            {/* HDRI: only Sky mode */}
+
+            {/* Lighting Mode: Sky / Baked */}
             <div className="flex gap-2 mb-3">
-              <button
-                style={{
-                  flex: 1,
-                  padding: '6px 12px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  color: 'white',
-                  background: 'rgba(255,200,120,0.2)',
-                  border: '1px solid rgba(255,200,120,0.3)',
-                  cursor: 'default',
-                  transition: '0.2s',
-                }}
-              >
-                Небо
-              </button>
+              {(['sky', 'baked'] as const).map((mode) => {
+                const isActive = store.lightingMode === mode
+                const label = mode === 'sky' ? 'Небо' : 'Baked'
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => store.setLightingMode(mode)}
+                    style={{
+                      flex: 1,
+                      padding: '6px 12px',
+                      borderRadius: '10px',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      color: 'white',
+                      background: isActive ? 'rgba(255,200,120,0.2)' : 'rgba(255,255,255,0.05)',
+                      border: isActive ? '1px solid rgba(255,200,120,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                      cursor: 'pointer',
+                      transition: '0.2s',
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
-            
+
             {/* Background toggle */}
             <div className="flex items-center justify-between mb-3" style={{ gap: '8px' }}>
               <span style={{ fontSize: '10px', fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>
@@ -102,8 +99,8 @@ export default function AdjustmentsPanel() {
                   width: '36px',
                   height: '20px',
                   borderRadius: '10px',
-                  background: store.showHdriBackground 
-                    ? 'rgba(255, 200, 120, 0.4)' 
+                  background: store.showHdriBackground
+                    ? 'rgba(255, 200, 120, 0.4)'
                     : 'rgba(255, 255, 255, 0.1)',
                   border: '1px solid rgba(255, 200, 120, 0.5)',
                   position: 'relative',
@@ -127,197 +124,135 @@ export default function AdjustmentsPanel() {
               </button>
             </div>
 
-            {/* Brightness Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Яркость
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.hdriIntensity.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0.3}
-                max={2.0}
-                step={0.05}
-                value={store.hdriIntensity}
-                onChange={(e) => {
-                  const newValue = parseFloat(e.target.value)
-                  store.setHdriIntensity(newValue)
-                  // Обновляем соответствующее значение для текущего HDRI
-                  if (store.hdriFile === 'textures/env/neutral_HDR.jpg') {
-                    store.setNeutralIntensity(newValue)
-                  } else if (store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr') {
-                    store.setSkyIntensity(newValue)
-                  }
-                }}
-                className="settings-slider"
-              />
-            </div>
+            {/* === Baked mode sliders === */}
+            {isBaked && (
+              <>
+                {/* Lightmap Intensity */}
+                <Slider label="Карта света" value={store.lightmapIntensity} min={0} max={3.0} step={0.1}
+                  onChange={(v) => store.setLightmapIntensity(v)} />
 
-            {/* AO Intensity Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Интенсивность AO
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.aoIntensity.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={5.0}
-                step={0.1}
-                value={store.aoIntensity}
-                onChange={(e) => store.setAoIntensity(parseFloat(e.target.value))}
-                className="settings-slider"
-              />
-            </div>
+                {/* Ambient brightness */}
+                <Slider label="Яркость" value={store.hdriIntensity} min={0.1} max={2.0} step={0.05}
+                  onChange={(v) => store.setHdriIntensity(v)} />
 
-            {/* Metalness Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Металличность
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.materialMetalness.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={1.0}
-                step={0.05}
-                value={store.materialMetalness}
-                onChange={(e) => store.setMaterialMetalness(parseFloat(e.target.value))}
-                className="settings-slider"
-              />
-            </div>
+                {/* Exposure */}
+                <Slider label="Экспозиция" value={store.toneMappingExposure} min={0.3} max={2.0} step={0.05}
+                  onChange={(v) => store.setToneMappingExposure(v)} />
 
-            {/* Roughness Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Шероховатость
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.materialRoughness.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={1.0}
-                step={0.05}
-                value={store.materialRoughness}
-                onChange={(e) => store.setMaterialRoughness(parseFloat(e.target.value))}
-                className="settings-slider"
-              />
-            </div>
+                {/* AO */}
+                <Slider label="Интенсивность AO" value={store.aoIntensity} min={0} max={5.0} step={0.1}
+                  onChange={(v) => store.setAoIntensity(v)} />
 
-            {/* Env Map Intensity Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Интенсивность отражений
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.envMapIntensity.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={3.0}
-                step={0.1}
-                value={store.envMapIntensity}
-                onChange={(e) => store.setEnvMapIntensity(parseFloat(e.target.value))}
-                className="settings-slider"
-              />
-            </div>
+                {/* Roughness */}
+                <Slider label="Шероховатость" value={store.materialRoughness} min={0} max={1.0} step={0.05}
+                  onChange={(v) => store.setMaterialRoughness(v)} />
 
-            {/* Exposure Slider */}
-            <div style={{ marginBottom: '12px' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  Экспозиция
-                </span>
-                <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                  {store.toneMappingExposure.toFixed(2)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={0.1}
-                max={2.0}
-                step={0.05}
-                value={store.toneMappingExposure}
-                onChange={(e) => store.setToneMappingExposure(parseFloat(e.target.value))}
-                className="settings-slider"
-              />
-            </div>
+                {/* Metalness */}
+                <Slider label="Металличность" value={store.materialMetalness} min={0} max={1.0} step={0.05}
+                  onChange={(v) => store.setMaterialMetalness(v)} />
+              </>
+            )}
 
-            {/* Blur and Rotation in one row */}
-            <div style={{ display: 'flex', gap: '16px' }}>
-              {/* Blur Slider */}
-              <div style={{ flex: '1 1 0%' }}>
-                <div className="flex justify-between items-center mb-1">
-                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                    Размытие
-                  </span>
-                  <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                    {store.hdriBlur.toFixed(2)}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={0.5}
-                  step={0.05}
-                  value={store.hdriBlur}
-                  onChange={(e) => {
-                    const newValue = parseFloat(e.target.value)
-                    store.setHdriBlur(newValue)
-                    // Обновляем соответствующее значение для текущего HDRI
-                    if (store.hdriFile === 'textures/env/neutral_HDR.jpg') {
-                      store.setNeutralBlur(newValue)
-                    } else if (store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr') {
-                      store.setSkyBlur(newValue)
+            {/* === Sky mode sliders === */}
+            {!isBaked && (
+              <>
+                {/* Brightness */}
+                <Slider label="Яркость" value={store.hdriIntensity} min={0.3} max={2.0} step={0.05}
+                  onChange={(v) => {
+                    store.setHdriIntensity(v)
+                    if (store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr') {
+                      store.setSkyIntensity(v)
                     }
-                  }}
-                  className="settings-slider"
-                />
-              </div>
+                  }} />
 
-              {/* Rotation Slider */}
-              <div style={{ flex: '1 1 0%' }}>
-                <div className="flex justify-between items-center mb-1">
-                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                    Вращение фона
-                  </span>
-                  <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
-                    {Math.round(store.hdriRotation)}°
-                  </span>
+                {/* AO */}
+                <Slider label="Интенсивность AO" value={store.aoIntensity} min={0} max={5.0} step={0.1}
+                  onChange={(v) => store.setAoIntensity(v)} />
+
+                {/* Metalness */}
+                <Slider label="Металличность" value={store.materialMetalness} min={0} max={1.0} step={0.05}
+                  onChange={(v) => store.setMaterialMetalness(v)} />
+
+                {/* Roughness */}
+                <Slider label="Шероховатость" value={store.materialRoughness} min={0} max={1.0} step={0.05}
+                  onChange={(v) => store.setMaterialRoughness(v)} />
+
+                {/* Env Map Intensity */}
+                <Slider label="Интенсивность отражений" value={store.envMapIntensity} min={0} max={3.0} step={0.1}
+                  onChange={(v) => store.setEnvMapIntensity(v)} />
+
+                {/* Exposure */}
+                <Slider label="Экспозиция" value={store.toneMappingExposure} min={0.1} max={2.0} step={0.05}
+                  onChange={(v) => store.setToneMappingExposure(v)} />
+
+                {/* Blur and Rotation */}
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <div style={{ flex: '1 1 0%' }}>
+                    <SliderInline label="Размытие" value={store.hdriBlur} min={0} max={0.5} step={0.05}
+                      onChange={(v) => {
+                        store.setHdriBlur(v)
+                        if (store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr') {
+                          store.setSkyBlur(v)
+                        }
+                      }} />
+                  </div>
+                  <div style={{ flex: '1 1 0%' }}>
+                    <SliderInline label="Вращение" value={store.hdriRotation} min={0} max={360} step={5}
+                      onChange={(v) => store.setHdriRotation(v)} suffix="°" />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={360}
-                  step={5}
-                  value={store.hdriRotation}
-                  onChange={(e) => store.setHdriRotation(parseFloat(e.target.value))}
-                  className="settings-slider"
-                />
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+// Reusable slider component
+function Slider({ label, value, min, max, step, onChange, suffix }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void; suffix?: string;
+}) {
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div className="flex justify-between items-center mb-1">
+        <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          {label}
+        </span>
+        <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
+          {suffix ? `${Math.round(value)}${suffix}` : value.toFixed(2)}
+        </span>
+      </div>
+      <input
+        type="range" min={min} max={max} step={step} value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="settings-slider"
+      />
+    </div>
+  )
+}
+
+function SliderInline({ label, value, min, max, step, onChange, suffix }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void; suffix?: string;
+}) {
+  return (
+    <>
+      <div className="flex justify-between items-center mb-1">
+        <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          {label}
+        </span>
+        <span style={{ fontSize: '9px', color: 'rgba(255,200,120,0.5)', fontFamily: 'monospace' }}>
+          {suffix ? `${Math.round(value)}${suffix}` : value.toFixed(2)}
+        </span>
+      </div>
+      <input
+        type="range" min={min} max={max} step={step} value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="settings-slider"
+      />
+    </>
   )
 }

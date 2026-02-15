@@ -5,6 +5,7 @@ import type { Zone, Event, Friend, Route, UserLocation, ViewMode, UIPanel, Notif
 export type GraphicsQuality = 'high' | 'performance'
 export type ToneMapping = 'ACES' | 'Linear' | 'Reinhard'
 export type LightingPreset = 'studio' | 'architectural' | 'exhibition' | 'custom'
+export type LightingMode = 'sky' | 'baked'
 
 interface AppState {
   // User state
@@ -225,7 +226,11 @@ interface AppState {
   setEnvMapIntensity: (intensity: number) => void
   lightmapIntensity: number
   setLightmapIntensity: (intensity: number) => void
-  
+
+  // Lighting Mode
+  lightingMode: LightingMode
+  setLightingMode: (mode: LightingMode) => void
+
   // Lighting Preset
   lightingPreset: LightingPreset
   setLightingPreset: (preset: LightingPreset) => void
@@ -299,7 +304,7 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   setHdriFile: (file) => set({ hdriFile: file }),
   showHdriBackground: true,
   setShowHdriBackground: (show) => set({ showHdriBackground: show }),
-  hdriIntensity: 1.5,
+  hdriIntensity: 1.0,
   setHdriIntensity: (intensity) => set({ hdriIntensity: intensity }),
   hdriRotation: 0,
   setHdriRotation: (rotation) => set({ hdriRotation: rotation }),
@@ -393,7 +398,7 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   // Tone Mapping
   toneMapping: 'ACES',
   setToneMapping: (toneMapping) => set({ toneMapping }),
-  toneMappingExposure: 1.4,
+  toneMappingExposure: 1.0,
   setToneMappingExposure: (exposure) => set({ toneMappingExposure: exposure }),
 
   // Post-processing effects
@@ -467,18 +472,20 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   setNightLightsIntensity: (intensity) => set({ nightLightsIntensity: intensity }),
 
   // Material Settings
-  materialColor: '#bcbcbc',
+  materialColor: '#d4d4d4',
   setMaterialColor: (color) => set({ materialColor: color }),
-  materialRoughness: 0.25,
+  materialRoughness: 0.7,
   setMaterialRoughness: (roughness) => set({ materialRoughness: roughness }),
-  materialMetalness: 0.3,
+  materialMetalness: 0.05,
   setMaterialMetalness: (metalness) => set({ materialMetalness: metalness }),
-  aoIntensity: 2.5,
+  aoIntensity: 1.5,
   setAoIntensity: (intensity) => set({ aoIntensity: intensity }),
-  envMapIntensity: 1.2,
+  envMapIntensity: 0.4,
   setEnvMapIntensity: (intensity) => set({ envMapIntensity: intensity }),
-  lightmapIntensity: 1.0,
+  lightmapIntensity: 1.5,
   setLightmapIntensity: (intensity) => set({ lightmapIntensity: intensity }),
+  lightingMode: 'baked' as LightingMode,
+  setLightingMode: (mode) => set({ lightingMode: mode }),
   
   // Lighting Preset
   lightingPreset: 'studio',
@@ -507,8 +514,21 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   setZoneMeshMapping: (mapping) => set({ zoneMeshMapping: mapping }),
 }), {
   name: 'mff-lighting-settings',
-  version: 7,
+  version: 8,
   migrate: (persistedState: any, version: number) => {
+    // v8: Reset all lighting defaults for Baked mode
+    if (version < 8) {
+      persistedState.lightingMode = 'baked'
+      persistedState.materialColor = '#d4d4d4'
+      persistedState.materialRoughness = 0.7
+      persistedState.materialMetalness = 0.05
+      persistedState.aoIntensity = 1.5
+      persistedState.envMapIntensity = 0.4
+      persistedState.lightmapIntensity = 1.5
+      persistedState.hdriIntensity = 1.0
+      persistedState.toneMappingExposure = 1.0
+    }
+
     // List of available HDRI files
     const availableHdriFiles = [
       'textures/env/citrus_orchard_road_puresky_1k.hdr',
@@ -516,13 +536,11 @@ export const useAppStore = create<AppState>()(persist((set) => ({
       'textures/env/kloppenheim_06_puresky_1k.hdr',
       'textures/env/qwantani_sunset_puresky_1k.hdr'
     ]
-    
-    // Reset hdriFile if it's not in the available list
+
     if (persistedState.hdriFile && !availableHdriFiles.includes(persistedState.hdriFile)) {
-      console.warn(`Resetting invalid hdriFile: ${persistedState.hdriFile}`)
       persistedState.hdriFile = 'textures/env/kloppenheim_06_puresky_1k.hdr'
     }
-    
+
     return persistedState
   },
   partialize: (state) => ({
@@ -537,7 +555,11 @@ export const useAppStore = create<AppState>()(persist((set) => ({
     materialColor: state.materialColor,
     materialRoughness: state.materialRoughness,
     materialMetalness: state.materialMetalness,
+    aoIntensity: state.aoIntensity,
+    envMapIntensity: state.envMapIntensity,
+    lightmapIntensity: state.lightmapIntensity,
     lightingPreset: state.lightingPreset,
+    lightingMode: state.lightingMode,
     graphicsQuality: state.graphicsQuality,
     showHdriBackground: state.showHdriBackground,
     hdriIntensity: state.hdriIntensity,
