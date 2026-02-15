@@ -22,7 +22,7 @@ function EffectsPipeline() {
 
   return (
     <R3FEffectComposer multisampling={0} enableNormalPass={ssaaoEnabled}>
-      {ssaaoEnabled && (
+      {ssaaoEnabled ? (
         <SSAO
           samples={16}
           rings={4}
@@ -34,40 +34,40 @@ function EffectsPipeline() {
           radius={8}
           intensity={3.0}
           bias={0.005}
-          color="black"
+          color={undefined}
         />
-      )}
+      ) : <></>}
 
-      {bloomIntensity > 0 && (
+      {bloomIntensity > 0 ? (
         <Bloom
           luminanceThreshold={bloomThreshold}
           mipmapBlur={false}
           intensity={bloomIntensity}
           radius={0.5}
         />
-      )}
+      ) : <></>}
 
-      {vignetteIntensity > 0 && (
+      {vignetteIntensity > 0 ? (
         <Vignette
           offset={0.5}
           darkness={vignetteIntensity}
           blendFunction={BlendFunction.NORMAL}
         />
-      )}
+      ) : <></>}
 
-      {(Math.abs(colorBrightness) > 0.01 || Math.abs(colorContrast) > 0.01) && (
+      {(Math.abs(colorBrightness) > 0.01 || Math.abs(colorContrast) > 0.01) ? (
         <BrightnessContrast
           brightness={colorBrightness}
           contrast={colorContrast}
         />
-      )}
+      ) : <></>}
 
-      {Math.abs(colorSaturation) > 0.01 && (
+      {Math.abs(colorSaturation) > 0.01 ? (
         <HueSaturation
           saturation={colorSaturation}
           blendFunction={BlendFunction.NORMAL}
         />
-      )}
+      ) : <></>}
 
       <SMAA />
     </R3FEffectComposer>

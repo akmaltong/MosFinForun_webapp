@@ -1,11 +1,11 @@
 import type { Route } from '../types'
-import { hasObstacleBetween, getNearestWalkablePoint } from './collisionDetection'
+import { hasObstacleBetween, getNearestWalkablePoint, isCollisionSystemReady } from './collisionDetection'
 import * as THREE from 'three'
 import { findPathOnNavMesh, loadNavMesh } from './navMeshSystem'
 
 // Initialize NavMesh
 let isNavMeshLoaded = false
-export function initNavigation(url: string = '/Navmesh.glb') {
+export function initNavigation(url: string = 'Navmesh.glb') {
   if (!isNavMeshLoaded) {
     console.log('🚀 Loading NavMesh from:', url)
     loadNavMesh(url).then(() => {
@@ -34,7 +34,6 @@ export const navNodes: NavNode[] = [
 // We can actually remove these if we are fully committed, but let's keep the structure valid to avoid breaking imports elsewhere for now.
 export const navEdges: Record<string, string[]> = {}
 
-// ...
 
 /**
  * Calculate route between two points using the navigation graph (NavMesh).
@@ -80,15 +79,19 @@ export function calculateRoute(
       // We rely on 'hasObstacleBetween' to ensure shortcuts don't go through walls
       let simplified: [number, number, number][] = validWaypoints
 
-      // Only simplify if path is reasonable size (prevent freeze on massive paths)
-      if (validWaypoints.length < 300) {
+      // Only simplify if path is reasonable size and collision system is ready
+      if (validWaypoints.length < 300 && isCollisionSystemReady()) {
         try {
           simplified = simplifyPath(validWaypoints)
         } catch (err) {
           console.error('Simplification error:', err)
         }
       } else {
-        console.warn("⚠️ Path too long for simplification, using raw path")
+        if (!isCollisionSystemReady()) {
+          // console.warn("Skipping simplification due to collision system not ready")
+        } else {
+          console.warn("⚠️ Path too long for simplification, using raw path")
+        }
       }
 
       console.log('   ✅ NavMesh path found with nodes:', validWaypoints.length, '-> simplified to:', simplified.length)

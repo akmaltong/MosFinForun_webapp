@@ -1,11 +1,8 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useThree } from '@react-three/fiber'
-import * as THREE from 'three'
+import { useEffect, useState } from 'react'
 import { navNodes } from '../utils/navigation'
-import { navMeshTriangles } from '../utils/navMeshSystem'
 
 export function NavigationDebug() {
-    const { scene } = useThree()
+    // const { scene } = useThree()
 
     // Force re-render periodically to catch when navMesh is ready
     const [, setTick] = useState(0)
@@ -14,6 +11,7 @@ export function NavigationDebug() {
         return () => clearInterval(interval)
     }, [])
 
+    /*
     // Create geometry for NavMesh visualization
     const navMeshGeometry = useMemo(() => {
         if (navMeshTriangles.length === 0) return null
@@ -34,6 +32,7 @@ export function NavigationDebug() {
         geo.computeVertexNormals()
         return geo
     }, [navMeshTriangles.length])
+    */
 
     return (
         <group>

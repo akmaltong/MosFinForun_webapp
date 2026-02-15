@@ -127,16 +127,16 @@ export default function RouteVisualization() {
   const currentRoute = useAppStore(state => state.currentRoute)
   const userLocation = useAppStore(state => state.userLocation)
 
-  const { path, pathLength, floorLineGeometry } = useMemo(() => {
+  const { path, pathLength, floorLineGeometry, lineObject } = useMemo(() => {
     if (!currentRoute) {
-      return { path: null, pathLength: 0, floorLineGeometry: null }
+      return { path: null, pathLength: 0, floorLineGeometry: null, lineObject: null }
     }
 
     // Use waypoints from route directly. They already contain start and end.
     const rawPoints = currentRoute.waypoints.map(p => new THREE.Vector3(...p))
 
     if (rawPoints.length < 2 || !rawPoints[0]) {
-      return { path: null, pathLength: 0, floorLineGeometry: null }
+      return { path: null, pathLength: 0, floorLineGeometry: null, lineObject: null }
     }
 
     // Remove near-duplicate points
@@ -166,21 +166,26 @@ export default function RouteVisualization() {
     }
 
     const geo = new THREE.BufferGeometry().setFromPoints(linePoints)
-    return { path: curvePath, pathLength: len, floorLineGeometry: geo }
-  }, [currentRoute, userLocation])
-
-  if (!path || !floorLineGeometry) return null
-
-  return (
-    <group>
-      {/* Main path line on floor - blue like in video */}
-      <primitive object={new THREE.Line(floorLineGeometry, new THREE.LineBasicMaterial({
+    const line = new THREE.Line(
+      geo,
+      new THREE.LineBasicMaterial({
         color: "#4169E1",
         linewidth: 3,
         transparent: true,
         opacity: 0.8,
         depthWrite: false,
-      }))} />
+      })
+    )
+    
+    return { path: curvePath, pathLength: len, floorLineGeometry: geo, lineObject: line }
+  }, [currentRoute, userLocation])
+
+  if (!path || !floorLineGeometry || !lineObject) return null
+
+  return (
+    <group>
+      {/* Main path line on floor - blue like in video */}
+      <primitive object={lineObject} />
 
       {/* Animated white chevron arrows on floor */}
       <FloorArrows path={path} pathLength={pathLength} />

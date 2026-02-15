@@ -1,5 +1,4 @@
-import { useRef, useEffect } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
 import * as THREE from 'three'
 import { useAppStore } from '../store/appStore'
 
@@ -13,54 +12,52 @@ export function StudioLighting() {
   const keyLightRef = useRef<THREE.DirectionalLight>(null)
   const fillLightRef = useRef<THREE.DirectionalLight>(null)
   const rimLightRef = useRef<THREE.DirectionalLight>(null)
-  
+
   const hdriRotation = useAppStore(state => state.hdriRotation)
   const timeOfDay = useAppStore(state => state.timeOfDay)
-  
+
   // Расчет позиции света на основе времени суток и вращения HDRI
   const rotationRad = (hdriRotation * Math.PI) / 180
-  
+
   // Key Light - основной источник (45° сверху и сбоку)
   const keyLightDistance = 50
   const keyLightAngle = rotationRad + Math.PI / 4 // +45°
   const keyLightX = Math.sin(keyLightAngle) * keyLightDistance
   const keyLightZ = Math.cos(keyLightAngle) * keyLightDistance
   const keyLightY = 40
-  
+
   // Fill Light - заполняющий (противоположная сторона, ниже)
   const fillLightDistance = 40
   const fillLightAngle = rotationRad + Math.PI * 0.75 // +135°
   const fillLightX = Math.sin(fillLightAngle) * fillLightDistance
   const fillLightZ = Math.cos(fillLightAngle) * fillLightDistance
   const fillLightY = 25
-  
+
   // Rim Light - контровой (сзади, сверху)
   const rimLightDistance = 45
   const rimLightAngle = rotationRad + Math.PI // +180° (сзади)
   const rimLightX = Math.sin(rimLightAngle) * rimLightDistance
   const rimLightZ = Math.cos(rimLightAngle) * rimLightDistance
   const rimLightY = 50
-  
+
   // Интенсивность в зависимости от времени суток
   const dayFactor = Math.max(0, Math.sin((timeOfDay / 24) * Math.PI * 2 - Math.PI / 2))
   const nightFactor = 1 - dayFactor
-  
+
   return (
     <>
       {/* Ambient Light - базовое окружающее освещение */}
-      <ambientLight 
-        intensity={0.4 + nightFactor * 0.2} 
-        color="#f0f0f5" 
+      <ambientLight
+        intensity={0.4 + nightFactor * 0.2}
+        color="#f0f0f5"
       />
-      
+
       {/* Hemisphere Light - небо и земля */}
       <hemisphereLight
-        skyColor="#b8d4ff"
-        groundColor="#8a8a8a"
-        intensity={0.6 + nightFactor * 0.3}
+        args={['#b8d4ff', '#8a8a8a', 0.6 + nightFactor * 0.3]}
         position={[0, 50, 0]}
       />
-      
+
       {/* Key Light - основной направленный свет */}
       <directionalLight
         ref={keyLightRef}
@@ -79,7 +76,7 @@ export function StudioLighting() {
         shadow-normalBias={0.05}
         shadow-radius={3}
       />
-      
+
       {/* Fill Light - заполняющий свет (без теней) */}
       <directionalLight
         ref={fillLightRef}
@@ -88,7 +85,7 @@ export function StudioLighting() {
         color="#d4e4ff"
         castShadow={false}
       />
-      
+
       {/* Rim Light - контровой свет для выделения контуров */}
       <directionalLight
         ref={rimLightRef}
@@ -97,7 +94,7 @@ export function StudioLighting() {
         color="#ffeedd"
         castShadow={false}
       />
-      
+
       {/* Дополнительные точечные источники для акцентов */}
       <pointLight
         position={[0, 30, 0]}
@@ -106,7 +103,7 @@ export function StudioLighting() {
         distance={80}
         decay={2}
       />
-      
+
       {/* Ночное освещение - точечные источники снизу */}
       {nightFactor > 0.3 && (
         <>

@@ -57,6 +57,10 @@ export function initCollisionDetection(model: THREE.Object3D) {
   console.log(`   - Ignored floors/ground: ${floorCount}`)
 }
 
+export function isCollisionSystemReady(): boolean {
+  return wallMeshes.length > 0
+}
+
 /**
  * Проверка, есть ли препятствие между двумя точками
  * Использует raycasting для определения пересечений с геометрией

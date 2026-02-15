@@ -9,33 +9,32 @@ import { useAppStore } from '../store/appStore'
  */
 export function ExhibitionLighting() {
   const mainLightRef = useRef<THREE.DirectionalLight>(null)
-  
+
   const hdriRotation = useAppStore(state => state.hdriRotation)
-  
+
   const rotationRad = (hdriRotation * Math.PI) / 180
-  
+
   // Основной свет - сверху и спереди
   const mainLightDistance = 60
   const mainLightX = Math.sin(rotationRad) * mainLightDistance * 0.3
   const mainLightZ = Math.cos(rotationRad) * mainLightDistance * 0.3
   const mainLightY = 50
-  
+
   return (
     <>
       {/* Высокое ambient освещение для яркости */}
-      <ambientLight 
-        intensity={1.2} 
-        color="#ffffff" 
+      <ambientLight
+        intensity={1.2}
+        color="#ffffff"
       />
-      
+
+      {/* Hemisphere Light - равномерное освещение */}
       {/* Hemisphere Light - равномерное освещение */}
       <hemisphereLight
-        skyColor="#ffffff"
-        groundColor="#e8e8e8"
-        intensity={1.0}
+        args={['#ffffff', '#e8e8e8', 1.0]}
         position={[0, 50, 0]}
       />
-      
+
       {/* Main Light - основной мягкий свет */}
       <directionalLight
         ref={mainLightRef}
@@ -54,7 +53,7 @@ export function ExhibitionLighting() {
         shadow-normalBias={0.05}
         shadow-radius={4}
       />
-      
+
       {/* Дополнительные источники для равномерности */}
       <directionalLight
         position={[-30, 40, -30]}
@@ -62,14 +61,14 @@ export function ExhibitionLighting() {
         color="#f5f5ff"
         castShadow={false}
       />
-      
+
       <directionalLight
         position={[30, 40, 30]}
         intensity={0.8}
         color="#fff5f5"
         castShadow={false}
       />
-      
+
       {/* Точечные источники для акцентов */}
       <pointLight
         position={[0, 35, 0]}
@@ -78,7 +77,7 @@ export function ExhibitionLighting() {
         distance={100}
         decay={1.5}
       />
-      
+
       {/* Заполняющие источники по углам */}
       <pointLight
         position={[-40, 20, -40]}
@@ -87,7 +86,7 @@ export function ExhibitionLighting() {
         distance={80}
         decay={2}
       />
-      
+
       <pointLight
         position={[40, 20, 40]}
         intensity={1.0}
@@ -95,7 +94,7 @@ export function ExhibitionLighting() {
         distance={80}
         decay={2}
       />
-      
+
       <pointLight
         position={[-40, 20, 40]}
         intensity={1.0}
@@ -103,7 +102,7 @@ export function ExhibitionLighting() {
         distance={80}
         decay={2}
       />
-      
+
       <pointLight
         position={[40, 20, -40]}
         intensity={1.0}
@@ -111,7 +110,7 @@ export function ExhibitionLighting() {
         distance={80}
         decay={2}
       />
-      
+
       {/* Нижний свет для устранения темных областей */}
       <directionalLight
         position={[0, -10, 0]}

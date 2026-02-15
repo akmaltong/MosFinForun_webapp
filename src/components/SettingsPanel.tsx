@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { settingsPanelStyle } from '../styles/panelStyles'
+import ZoneMappingEditor from './ZoneMappingEditor'
 
-type SettingsTab = 'scene' | 'material' | 'effects' | 'editor'
+type SettingsTab = 'scene' | 'material' | 'effects' | 'editor' | 'zones'
 
 export default function SettingsPanel() {
   const store = useAppStore()
@@ -57,6 +58,18 @@ export default function SettingsPanel() {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
           <circle cx="12" cy="13" r="4" />
+        </svg>
+      ),
+    },
+    {
+      id: 'zones',
+      label: 'Зоны',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
         </svg>
       ),
     },
@@ -449,6 +462,12 @@ export default function SettingsPanel() {
             <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.5, marginTop: '4px' }}>
               Откроется панель редактирования справа. Выберите зону и настройте позицию или камеру. Сохраните результат через 💾.
             </div>
+          </div>
+        )}
+
+        {activeTab === 'zones' && (
+          <div style={{ marginTop: '12px' }}>
+            <ZoneMappingEditor />
           </div>
         )}
       </div>

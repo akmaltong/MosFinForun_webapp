@@ -17,7 +17,7 @@ export function HDRIEnvironment() {
 
   return (
     <Environment
-      files={`/${hdriFile}`}
+      files={hdriFile}
       background={showHdriBackground}
       backgroundIntensity={hdriIntensity * 0.3}
       backgroundBlurriness={hdriBlur}

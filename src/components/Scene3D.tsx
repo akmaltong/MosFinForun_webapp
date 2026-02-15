@@ -252,6 +252,8 @@ export default function Scene3D() {
             makeDefault
             position={viewMode === 'first-person' ? undefined : getCameraPosition()}
             fov={viewMode === 'first-person' ? 75 : 55}
+            near={5}
+            far={2000}
           />
         )}
 

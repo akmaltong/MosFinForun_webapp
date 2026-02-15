@@ -229,6 +229,10 @@ interface AppState {
   // Lighting Preset
   lightingPreset: LightingPreset
   setLightingPreset: (preset: LightingPreset) => void
+
+  // Zone Mesh Mapping
+  zoneMeshMapping: Record<string, string>
+  setZoneMeshMapping: (mapping: Record<string, string>) => void
 }
 
 export const useAppStore = create<AppState>()(persist((set) => ({
@@ -479,6 +483,27 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   // Lighting Preset
   lightingPreset: 'studio',
   setLightingPreset: (preset) => set({ lightingPreset: preset }),
+
+  // Zone Mesh Mapping
+  zoneMeshMapping: {
+    'Конференц-зал I': 'Конференц-зал_1',
+    'Конференц-зал II': 'Конференц-зал_2',
+    'Конференц-зал III': 'Конференц-зал_3',
+    'Конференц-зал IV': 'Конференц-зал_4',
+    'Овальный зал': 'Овальный_зал',
+    'Зал пленарного заседания': 'Зал_пленарного_заседания',
+    'VIP-зал': 'VIP-зал',
+    'Арт-объект': 'Арт-объект',
+    'Пресс-подход 1': 'Пресс-подход_1',
+    'Пресс-подход 2': 'Пресс-подход_2',
+    'Лаунж-зона 1': 'Лаунж-зона_1',
+    'Лаунж-зона 2': 'Лаунж-зона_2',
+    'Аккредитация': 'Аккредитация',
+    'Инфо-стойка': 'Инфо-стойка',
+    'Экспозиция': 'Экспозиция',
+    'Фойе': 'Фойе',
+  },
+  setZoneMeshMapping: (mapping) => set({ zoneMeshMapping: mapping }),
 }), {
   name: 'mff-lighting-settings',
   version: 7,

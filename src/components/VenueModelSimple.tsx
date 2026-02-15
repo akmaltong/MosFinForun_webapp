@@ -8,7 +8,7 @@ import { useControls } from 'leva'
  */
 
 function LoadedModel() {
-  const gltf = useGLTF('/SM_MFF.glb')
+  const gltf = useGLTF('SM_MFF.glb')
   const { scene } = gltf
   
   // Контроль AO через Leva

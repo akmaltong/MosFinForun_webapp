@@ -10,7 +10,7 @@ import { initCollisionDetection } from '../utils/collisionDetection'
  */
 
 function LoadedModel() {
-  const gltf = useGLTF('/SM_MFF.glb')
+  const gltf = useGLTF('SM_MFF.glb')
   const { scene } = gltf
   
   const materialColor = useAppStore(state => state.materialColor)

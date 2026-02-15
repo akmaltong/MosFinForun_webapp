@@ -61,7 +61,7 @@ function App() {
             
             {/* Logo image */}
             <img 
-              src="/logo.ico" 
+              src="logo.ico" 
               alt="SDVT Logo" 
               className="w-16 h-16 object-contain"
               style={{

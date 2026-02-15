@@ -8,30 +8,12 @@ import { useAppStore } from '../store/appStore'
  * Подсвечивает выбранную зону прозрачным материалом
  */
 
-// Маппинг названий зон на имена мешей в Blender модели
-const ZONE_MESH_MAPPING: Record<string, string> = {
-  'Конференц-зал I': 'Конференц-зал_1',
-  'Конференц-зал II': 'Конференц-зал_2',
-  'Конференц-зал III': 'Конференц-зал_3',
-  'Конференц-зал IV': 'Конференц-зал_4',
-  'Овальный зал': 'Овальный_зал',
-  'Зал пленарного заседания': 'Зал_пленарного_заседания',
-  'VIP-зал': 'VIP-зал',
-  'Арт-объект': 'Арт-объект',
-  'Пресс-подход 1': 'Пресс-подход_1',
-  'Пресс-подход 2': 'Пресс-подход_2',
-  'Лаунж-зона 1': 'Лаунж-зона_1',
-  'Лаунж-зона 2': 'Лаунж-зона_2',
-  'Аккредитация': 'Аккредитация',
-  'Инфо-стойка': 'Инфо-стойка',
-  'Экспозиция': 'Экспозиция',
-  'Фойе': 'Фойе',
-  'Фото-зона': 'Фото-зона',
-}
+
 
 export default function ZoneGeometry() {
-  const gltf = useGLTF('/Zones.glb')
+  const gltf = useGLTF('Zones.glb')
   const selectedZone = useAppStore(state => state.selectedZone)
+  const zoneMeshMapping = useAppStore(state => state.zoneMeshMapping)
 
   useEffect(() => {
     if (!gltf?.scene) {
@@ -50,23 +32,25 @@ export default function ZoneGeometry() {
       }
     })
     console.log('📦 Available meshes in Zones.glb:', meshNames)
-    
+
     if (selectedZone) {
-      console.log('🔍 Looking for mesh:', ZONE_MESH_MAPPING[selectedZone.name])
+      console.log('🔍 Looking for mesh:', zoneMeshMapping[selectedZone.name])
     }
 
     // Создаем светящийся материал для подсветки зоны
     const highlightMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color('#4CAF50'),
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.15,
       side: THREE.DoubleSide,
       depthWrite: false,
+      depthTest: true,
       emissive: new THREE.Color('#4CAF50'),
-      emissiveIntensity: 2.0,
+      emissiveIntensity: 1.5,
       metalness: 0,
       roughness: 1,
       toneMapped: false, // Отключаем tone mapping для яркого свечения
+      alphaTest: 0, // Убираем alpha test
     })
 
     let foundMatch = false
@@ -79,29 +63,33 @@ export default function ZoneGeometry() {
         }
 
         // Проверяем через маппинг
-        const meshName = selectedZone ? ZONE_MESH_MAPPING[selectedZone.name] : null
+        const meshName = selectedZone ? zoneMeshMapping[selectedZone.name] : null
         const isSelected = meshName && child.name === meshName
 
-        if (isSelected) {
+        if (isSelected && selectedZone) {
           foundMatch = true
           console.log('✅ Found matching mesh:', child.name, 'for zone:', selectedZone.name)
           console.log('   Mesh position:', child.position)
           console.log('   Mesh scale:', child.scale)
           console.log('   Mesh visible:', child.visible)
           console.log('   Mesh geometry:', child.geometry)
-          
+
           // Подсвечиваем выбранную зону светящимся материалом
           const newMaterial = highlightMaterial.clone()
           const zoneColor = new THREE.Color(selectedZone.color)
           newMaterial.color = zoneColor
           newMaterial.emissive = zoneColor
-          newMaterial.emissiveIntensity = 2.0 // Яркое свечение
-          newMaterial.opacity = 0.5
-          
+          newMaterial.emissiveIntensity = 1.5 // Умеренное свечение
+          newMaterial.opacity = 0.15 // Еле видимая прозрачность
+          newMaterial.transparent = true
+          newMaterial.depthWrite = false
+          newMaterial.depthTest = true
+          newMaterial.needsUpdate = true
+
           child.material = newMaterial
           child.visible = true
           child.renderOrder = 999 // Рендерим поверх всего
-          
+
           console.log('   Applied glowing material with color:', selectedZone.color)
         } else {
           // Скрываем все остальные зоны
@@ -111,13 +99,13 @@ export default function ZoneGeometry() {
     })
 
     if (selectedZone && !foundMatch) {
-      console.warn('⚠️ No mesh found for zone:', selectedZone.name, '(expected mesh:', ZONE_MESH_MAPPING[selectedZone.name], ')')
+      console.warn('⚠️ No mesh found for zone:', selectedZone.name, '(expected mesh:', zoneMeshMapping[selectedZone.name], ')')
     }
 
     return () => {
       highlightMaterial.dispose()
     }
-  }, [gltf, selectedZone])
+  }, [gltf, selectedZone, zoneMeshMapping])
 
   return <primitive object={gltf.scene} />
 }

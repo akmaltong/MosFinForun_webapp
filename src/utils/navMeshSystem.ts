@@ -17,13 +17,21 @@ export function loadNavMesh(url: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const loader = new GLTFLoader()
         loader.load(url, (gltf) => {
-            const mesh = gltf.scene.children.find(c => c instanceof THREE.Mesh) as THREE.Mesh
+            let foundMesh: THREE.Mesh | null = null
+            gltf.scene.traverse((child) => {
+                if (!foundMesh && child instanceof THREE.Mesh) {
+                    foundMesh = child
+                }
+            })
 
-            if (!mesh || !mesh.geometry) {
+            if (!foundMesh?.geometry) {
                 console.error('❌ NavMesh loading failed: No mesh found in GLB')
                 reject('No mesh found')
                 return
             }
+
+            // Assign to strongly typed variable for use
+            const mesh: THREE.Mesh = foundMesh
 
             console.log('✅ NavMesh loaded from GLB')
             buildNavGraph(mesh.geometry)

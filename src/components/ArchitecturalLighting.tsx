@@ -9,20 +9,20 @@ import { useAppStore } from '../store/appStore'
  */
 export function ArchitecturalLighting() {
   const sunLightRef = useRef<THREE.DirectionalLight>(null)
-  
+
   const hdriRotation = useAppStore(state => state.hdriRotation)
   const timeOfDay = useAppStore(state => state.timeOfDay)
-  
+
   // Расчет позиции солнца на основе времени суток
   const hourAngle = ((timeOfDay - 6) / 12) * Math.PI // 6:00 = восход, 18:00 = закат
   const sunElevation = Math.sin(hourAngle) * 60 // Высота солнца
   const sunAzimuth = (hdriRotation * Math.PI) / 180
-  
+
   const sunDistance = 100
   const sunX = Math.sin(sunAzimuth) * Math.cos(hourAngle) * sunDistance
   const sunY = Math.max(10, sunElevation)
   const sunZ = Math.cos(sunAzimuth) * Math.cos(hourAngle) * sunDistance
-  
+
   // Цвет солнца в зависимости от времени суток
   const getSunColor = () => {
     if (timeOfDay < 6 || timeOfDay > 20) {
@@ -33,7 +33,7 @@ export function ArchitecturalLighting() {
       return '#fffaf0' // День - теплый белый
     }
   }
-  
+
   // Интенсивность солнца
   const getSunIntensity = () => {
     if (timeOfDay < 6 || timeOfDay > 20) {
@@ -44,7 +44,7 @@ export function ArchitecturalLighting() {
       return 3.5 // День
     }
   }
-  
+
   // Цвет неба
   const getSkyColor = () => {
     if (timeOfDay < 6 || timeOfDay > 20) {
@@ -55,23 +55,22 @@ export function ArchitecturalLighting() {
       return '#87ceeb' // Дневное небо
     }
   }
-  
+
   return (
     <>
       {/* Ambient Light - минимальное для реализма */}
-      <ambientLight 
-        intensity={0.3} 
-        color="#e8e8f0" 
+      <ambientLight
+        intensity={0.3}
+        color="#e8e8f0"
       />
-      
+
+      {/* Hemisphere Light - небо и отражение от земли */}
       {/* Hemisphere Light - небо и отражение от земли */}
       <hemisphereLight
-        skyColor={getSkyColor()}
-        groundColor="#6a6a6a"
-        intensity={0.8}
+        args={[getSkyColor(), "#6a6a6a", 0.8]}
         position={[0, 50, 0]}
       />
-      
+
       {/* Sun Light - основной источник (солнце) */}
       <directionalLight
         ref={sunLightRef}
@@ -90,7 +89,7 @@ export function ArchitecturalLighting() {
         shadow-normalBias={0.05}
         shadow-radius={2}
       />
-      
+
       {/* Sky Light - рассеянный свет от неба */}
       <directionalLight
         position={[0, 50, 0]}
@@ -98,7 +97,7 @@ export function ArchitecturalLighting() {
         color={getSkyColor()}
         castShadow={false}
       />
-      
+
       {/* Bounce Light - отраженный свет от земли */}
       <directionalLight
         position={[0, -20, 0]}
@@ -106,7 +105,7 @@ export function ArchitecturalLighting() {
         color="#b8a890"
         castShadow={false}
       />
-      
+
       {/* Ночное освещение - искусственные источники */}
       {(timeOfDay < 6 || timeOfDay > 19) && (
         <>
