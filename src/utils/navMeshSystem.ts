@@ -187,19 +187,30 @@ export function findStartTriangle(pos: THREE.Vector3): number {
     const key = hashPos(pos.x, pos.z)
     const candidates = spatialHash.get(key) || []
 
-    // Also check surrounding cells if empty or few candidates?
-    // For now simple check
+    // Expand search to neighboring cells if no candidates
+    let searchList = candidates.length > 0 ? candidates : []
+    
+    if (searchList.length === 0) {
+        // Search neighboring cells
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dz = -1; dz <= 1; dz++) {
+                const neighborKey = hashPos(pos.x + dx * 10, pos.z + dz * 10)
+                const neighborCandidates = spatialHash.get(neighborKey) || []
+                searchList.push(...neighborCandidates)
+            }
+        }
+    }
 
-    let searchList = candidates.length > 0 ? candidates : navMeshTriangles.map(t => t.id)
-    // Fallback to full search if not found in bucket (e.g. slight off-mesh)
-    if (searchList.length === 0) searchList = navMeshTriangles.map(t => t.id)
+    // Fallback to full search if still empty
+    if (searchList.length === 0) {
+        searchList = navMeshTriangles.map(t => t.id)
+    }
 
     let closestId = -1
     let minDist = Infinity
 
-    // Only search candidates
+    // Search all candidates and find closest
     for (const id of searchList) {
-        // Direct object reference is faster than array lookup if possible, but map(id) is okay
         const tri = navMeshTriangles[id]
         const dist = pos.distanceToSquared(tri.center)
         if (dist < minDist) {
@@ -217,8 +228,19 @@ export function findPathOnNavMesh(startPos: THREE.Vector3, endPos: THREE.Vector3
     const startId = findStartTriangle(startPos)
     const endId = findStartTriangle(endPos)
 
-    if (startId === -1 || endId === -1) return []
+    if (startId === -1 || endId === -1) {
+        console.warn('⚠️ Start or end position not on NavMesh, using direct line')
+        return [endPos]
+    }
+    
     if (startId === endId) return [endPos]
+
+    // Project start and end positions to NavMesh surface
+    const startTriangle = navMeshTriangles[startId]
+    const endTriangle = navMeshTriangles[endId]
+    
+    const projectedStart = startTriangle.center.clone()
+    const projectedEnd = endTriangle.center.clone()
 
     // A* Search over triangles
     const openSet = new Set<number>([startId])
@@ -228,7 +250,7 @@ export function findPathOnNavMesh(startPos: THREE.Vector3, endPos: THREE.Vector3
     gScore.set(startId, 0)
 
     const fScore = new Map<number, number>()
-    fScore.set(startId, navMeshTriangles[startId].center.distanceTo(navMeshTriangles[endId].center))
+    fScore.set(startId, projectedStart.distanceTo(projectedEnd))
 
     let iterations = 0
     const MAX_ITERATIONS = 500
@@ -273,11 +295,6 @@ export function findPathOnNavMesh(startPos: THREE.Vector3, endPos: THREE.Vector3
 
             // Verify start
             if (pathIds[0] !== startId) {
-                // If we didn't reach startId, manually prepend it? 
-                // Normally loop stops when currentId == startId, so startId is NOT added to pathIds yet?
-                // Wait, if currentId becomes startId, loop conditioned on currentId !== startId stops.
-                // So startId IS currentId now. We should unshift it?
-                // Yes, let's unshift currentId one last time if it IS startId.
                 if (currentId === startId) {
                     pathIds.unshift(currentId)
                 }
