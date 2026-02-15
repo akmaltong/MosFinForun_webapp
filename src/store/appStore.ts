@@ -502,6 +502,7 @@ export const useAppStore = create<AppState>()(persist((set) => ({
     'Инфо-стойка': 'Инфо-стойка',
     'Экспозиция': 'Экспозиция',
     'Фойе': 'Фойе',
+    'Фото-зона': 'Фото-зона',
   },
   setZoneMeshMapping: (mapping) => set({ zoneMeshMapping: mapping }),
 }), {
