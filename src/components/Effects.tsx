@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, Component, type ReactNode } from 'react'
 import {
   Bloom,
   EffectComposer as R3FEffectComposer,
@@ -10,6 +10,16 @@ import {
 } from '@react-three/postprocessing'
 import { useAppStore } from '../store/appStore'
 import { BlendFunction } from 'postprocessing'
+
+class EffectsErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error) { console.warn('PostProcessing not supported, rendering without effects:', error.message) }
+  render() {
+    if (this.state.hasError) return null
+    return this.props.children
+  }
+}
 
 function EffectsPipeline() {
   const bloomIntensity = useAppStore(state => state.bloomIntensity)
@@ -76,8 +86,10 @@ function EffectsPipeline() {
 
 export default function Effects() {
   return (
-    <Suspense fallback={null}>
-      <EffectsPipeline />
-    </Suspense>
+    <EffectsErrorBoundary>
+      <Suspense fallback={null}>
+        <EffectsPipeline />
+      </Suspense>
+    </EffectsErrorBoundary>
   )
 }
