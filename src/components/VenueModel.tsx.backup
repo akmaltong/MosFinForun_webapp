@@ -1,0 +1,66 @@
+import { useEffect, useMemo } from 'react'
+import { useGLTF } from '@react-three/drei'
+import * as THREE from 'three'
+import { useAppStore } from '../store/appStore'
+
+function LoadedModel() {
+  const gltf = useGLTF('/SM_MFF.glb')
+  const { scene } = gltf
+  
+  const materialColor = useAppStore(state => state.materialColor)
+  const materialRoughness = useAppStore(state => state.materialRoughness)
+  const materialMetalness = useAppStore(state => state.materialMetalness)
+
+  const material = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color: new THREE.Color(materialColor),
+      roughness: materialRoughness,
+      metalness: materialMetalness,
+      envMapIntensity: 1.2,
+      side: THREE.DoubleSide,
+    })
+  }, [materialColor, materialRoughness, materialMetalness])
+
+  useEffect(() => {
+    if (!gltf?.scene) return
+    
+    gltf.scene.traverse((child: any) => {
+      if (child.isMesh) {
+        // Сохраняем оригинальный материал если есть
+        const originalMaterial = child.material
+        
+        // Создаем новый материал с сохранением текстур и усиленным AO
+        const newMaterial = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(materialColor),
+          roughness: materialRoughness,
+          metalness: materialMetalness,
+          envMapIntensity: 1.2,
+          side: THREE.DoubleSide,
+          
+          // Сохраняем текстуры из оригинального материала
+          map: originalMaterial?.map || null,
+          normalMap: originalMaterial?.normalMap || null,
+          aoMap: originalMaterial?.aoMap || null,
+          
+          // УСИЛИВАЕМ AO для затемнения углов и стыков
+          aoMapIntensity: 2.5,  // Сильное затемнение
+        })
+        
+        child.material = newMaterial
+        child.castShadow = true
+        child.receiveShadow = true
+        
+        // Dispose старого материала
+        if (originalMaterial && originalMaterial !== material) {
+          originalMaterial.dispose()
+        }
+      }
+    })
+  }, [gltf, material, materialColor, materialRoughness, materialMetalness])
+
+  return <primitive object={scene} />
+}
+
+export default function VenueModel() {
+  return <LoadedModel />
+}

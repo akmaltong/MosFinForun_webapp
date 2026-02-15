@@ -1,0 +1,37 @@
+{
+  "name": "forum-navigator",
+  "version": "1.0.0",
+  "description": "3D Forum Navigation App with AR",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
+    "date-fns": "^3.0.0",
+    "enhance-shader-lighting": "^0.0.2",
+    "leva": "^0.10.1",
+    "postprocessing": "^6.38.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-merge-refs": "^3.0.2",
+    "three": "^0.170.0",
+    "tiny-invariant": "^1.3.3",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.182.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0"
+  }
+}
