@@ -3,7 +3,7 @@ import type { POICamera } from '../types'
 export const pois: POICamera[] = [
   {
     id: 'poi-1',
-    name: 'VIP-зал',
+    name: 'VIP_зона',
     color: '#ffd700',
     cameraPosition: [36.6455, 45.9608, 0.2580],
     targetPosition: [55.7971, -0.0236, 0.2841],
@@ -25,7 +25,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-3',
-    name: 'Арт-объект',
+    name: 'Арт_объект',
     color: '#96ceb4',
     cameraPosition: [-0.9922, 14.2606, 0.6487],
     targetPosition: [-17.7868, 0.0393, 2.4350],
@@ -36,7 +36,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-4',
-    name: 'Пресс-подход 1',
+    name: 'ЗОНА ПРЕСС ПОДХОДА_1',
     color: '#e74c3c',
     cameraPosition: [-61.2378, 14.7238, 2.3764],
     targetPosition: [-70.6471, 0.0297, -4.8607],
@@ -47,7 +47,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-5',
-    name: 'Пресс-подход 2',
+    name: 'ЗОНА ПРЕСС ПОДХОДА_2',
     color: '#c0392b',
     cameraPosition: [-65.4986, 13.8153, -4.1616],
     targetPosition: [-71.0304, 1.8639, 8.8401],
@@ -58,7 +58,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-6',
-    name: 'Зал пленарного заседания',
+    name: 'Зал_Пленарного_Заседания',
     color: '#ff6b35',
     cameraPosition: [3.5254, 31.3385, 1.4790],
     targetPosition: [26.3648, -0.2141, 2.1837],
@@ -80,7 +80,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-8',
-    name: 'Конференц-зал I',
+    name: 'Конференц_зал 1',
     color: '#0088ff',
     cameraPosition: [-44.2211, 22.0683, 1.5113],
     targetPosition: [-44.4166, 11.5688, 7.5921],
@@ -91,7 +91,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-9',
-    name: 'Конференц-зал II',
+    name: 'Конференц_зал 2',
     color: '#4ecdc4',
     cameraPosition: [-38.4955, 22.2130, 1.2848],
     targetPosition: [-38.3563, 9.4210, -6.7289],
@@ -102,7 +102,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-10',
-    name: 'Конференц-зал III',
+    name: 'Конференц_зал 3',
     color: '#45b7d1',
     cameraPosition: [-7.2254, 22.3843, 1.8895],
     targetPosition: [-7.3830, 8.3962, 10.1424],
@@ -113,7 +113,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-11',
-    name: 'Конференц-зал IV',
+    name: 'Конференц_зал 4',
     color: '#96ceb4',
     cameraPosition: [-4.5438, 23.7088, 2.3991],
     targetPosition: [-4.6735, 15.2893, -2.9950],
@@ -124,7 +124,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-12',
-    name: 'Лаунж-зона 1',
+    name: 'Лайндж_зона_1',
     color: '#45b7d1',
     cameraPosition: [-23.8644, 16.7468, 6.4426],
     targetPosition: [-20.4001, 1.8277, -9.9808],
@@ -135,7 +135,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-13',
-    name: 'Лаунж-зона 2',
+    name: 'Лайндж_зона_2',
     color: '#4ecdc4',
     cameraPosition: [-23.7676, 18.1694, -4.3054],
     targetPosition: [-26.4808, 1.9307, 13.3384],
@@ -157,7 +157,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-15',
-    name: 'Переговорная 1',
+    name: 'Переговорная_1',
     color: '#8e44ad',
     cameraPosition: [-65.6993, 12.8488, -17.2706],
     targetPosition: [-71.1727, 0.0193, -14.0301],
@@ -168,7 +168,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-16',
-    name: 'Переговорная 2',
+    name: 'Переговорная_2',
     color: '#9b59b6',
     cameraPosition: [-62.0645, 7.2260, -9.1384],
     targetPosition: [-65.9190, 0.0193, -14.9010],
@@ -179,7 +179,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-17',
-    name: 'Экспозиция',
+    name: 'Стенд_спонсора',
     color: '#cc0066',
     cameraPosition: [-41.2583, 12.2137, 2.0269],
     targetPosition: [-29.0376, 0.8293, 2.0298],
@@ -201,7 +201,7 @@ export const pois: POICamera[] = [
   },
   {
     id: 'poi-19',
-    name: 'Фото-зона',
+    name: 'Фото_зона',
     color: '#ff69b4',
     cameraPosition: [-16.3162, 17.7573, 1.0687],
     targetPosition: [2.7957, 0.3475, 0.7583],
