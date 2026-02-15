@@ -14,6 +14,7 @@ import FirstPersonControls from './FirstPersonControls'
 import CameraController, { setOrbitControls } from './CameraController'
 import HDRIEnvironment from './HDRIEnvironment'
 import Effects from './Effects'
+import { NavMeshVisualizer } from './NavMeshVisualizer'
 
 function OrbitControlsWithRef({ viewMode }: { viewMode: string }) {
   const controlsRef = useRef<any>(null)
@@ -118,6 +119,11 @@ function SceneContent() {
       {/* Геометрия зон для подсветки */}
       <Suspense fallback={null}>
         <ZoneGeometry />
+      </Suspense>
+
+      {/* NavMesh визуализация */}
+      <Suspense fallback={null}>
+        <NavMeshVisualizer />
       </Suspense>
 
       <UserMarker />
@@ -230,6 +236,7 @@ export default function Scene3D() {
           toneMapping: getToneMapping(),
           toneMappingExposure: toneMappingExposure,
           antialias: true,
+          logarithmicDepthBuffer: true,
         }}
         onCreated={(state) => {
           state.gl.shadowMap.enabled = false

@@ -49,6 +49,11 @@ function LoadedModel() {
           child.geometry.attributes.uv2 = child.geometry.attributes.uv
         }
         
+        // Fix Z-fighting on co-planar surfaces
+        mat.polygonOffset = true
+        mat.polygonOffsetFactor = 1
+        mat.polygonOffsetUnits = 1
+
         // Тени отключены
         child.castShadow = false
         child.receiveShadow = false

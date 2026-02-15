@@ -295,7 +295,7 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   setGraphicsQuality: (quality) => set({ graphicsQuality: quality }),
 
   // HDRi Settings
-  hdriFile: 'textures/env/misty_farm_road_2k.hdr',
+  hdriFile: 'textures/env/kloppenheim_06_puresky_1k.hdr',
   setHdriFile: (file) => set({ hdriFile: file }),
   showHdriBackground: true,
   setShowHdriBackground: (show) => set({ showHdriBackground: show }),
@@ -520,7 +520,7 @@ export const useAppStore = create<AppState>()(persist((set) => ({
     // Reset hdriFile if it's not in the available list
     if (persistedState.hdriFile && !availableHdriFiles.includes(persistedState.hdriFile)) {
       console.warn(`Resetting invalid hdriFile: ${persistedState.hdriFile}`)
-      persistedState.hdriFile = 'textures/env/misty_farm_road_2k.hdr'
+      persistedState.hdriFile = 'textures/env/kloppenheim_06_puresky_1k.hdr'
     }
     
     return persistedState

@@ -11,7 +11,7 @@ export function initNavigation(url: string = 'Navmesh.glb') {
     loadNavMesh(url).then(() => {
       isNavMeshLoaded = true
       console.log('🚀 NavMesh loaded successfully')
-    }).catch(e => console.error(e))
+    }).catch(e => console.error('🚀 NavMesh load FAILED:', e))
   }
 }
 
@@ -75,26 +75,11 @@ export function calculateRoute(
       // Filter out any NaNs processing might have produced
       const validWaypoints = simpleWaypoints.filter(p => !isNaN(p[0]) && !isNaN(p[1]) && !isNaN(p[2]))
 
-      // Simplify: remove collinear points for straighter paths
-      // We rely on 'hasObstacleBetween' to ensure shortcuts don't go through walls
+      // Yuka NavMesh already returns an optimized path via Funnel Algorithm
+      // Do NOT simplify - it breaks the path by cutting through walls
       let simplified: [number, number, number][] = validWaypoints
 
-      // Only simplify if path is reasonable size and collision system is ready
-      if (validWaypoints.length < 300 && isCollisionSystemReady()) {
-        try {
-          simplified = simplifyPath(validWaypoints)
-        } catch (err) {
-          console.error('Simplification error:', err)
-        }
-      } else {
-        if (!isCollisionSystemReady()) {
-          // console.warn("Skipping simplification due to collision system not ready")
-        } else {
-          console.warn("⚠️ Path too long for simplification, using raw path")
-        }
-      }
-
-      console.log('   ✅ NavMesh path found with nodes:', validWaypoints.length, '-> simplified to:', simplified.length)
+      console.log('   ✅ NavMesh path found with nodes:', validWaypoints.length)
 
       // Calculate total distance
       let totalDistance = 0

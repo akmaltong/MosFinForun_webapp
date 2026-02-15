@@ -46,7 +46,7 @@ export default function ZoneMarkers() {
               onClick={handleClick}
             >
               <cylinderGeometry args={[3, 3, 4, 32]} />
-              <meshBasicMaterial transparent opacity={0} />
+              <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
             </mesh>
 
             {/* Highlight sphere for selected zone */}

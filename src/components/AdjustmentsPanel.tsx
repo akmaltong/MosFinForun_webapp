@@ -71,81 +71,23 @@ export default function AdjustmentsPanel() {
               Окружение
             </div>
             
-            {/* HDRI Buttons */}
+            {/* HDRI: only Sky mode */}
             <div className="flex gap-2 mb-3">
               <button
-                onClick={() => {
-                  store.setHdriFile('textures/env/neutral_HDR.jpg')
-                  store.setHdriIntensity(store.neutralIntensity)
-                  store.setHdriBlur(store.neutralBlur)
-                  store.setShowHdriBackground(true)
-                }}
                 style={{
                   flex: 1,
                   padding: '6px 12px',
                   borderRadius: '10px',
                   fontSize: '10px',
-                  fontWeight: store.hdriFile === 'textures/env/neutral_HDR.jpg' ? 600 : 400,
+                  fontWeight: 600,
                   color: 'white',
-                  background: store.hdriFile === 'textures/env/neutral_HDR.jpg'
-                    ? 'rgba(255,200,120,0.2)'
-                    : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${store.hdriFile === 'textures/env/neutral_HDR.jpg' ? 'rgba(255,200,120,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  cursor: 'pointer',
-                  transition: '0.2s',
-                }}
-              >
-                Натуральный
-              </button>
-
-              <button
-                onClick={() => {
-                  store.setHdriFile('textures/env/kloppenheim_06_puresky_1k.hdr')
-                  store.setHdriIntensity(store.skyIntensity)
-                  store.setHdriBlur(store.skyBlur)
-                  store.setShowHdriBackground(true)
-                }}
-                style={{
-                  flex: 1,
-                  padding: '6px 12px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr' ? 600 : 400,
-                  color: 'white',
-                  background: store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr'
-                    ? 'rgba(255,200,120,0.2)'
-                    : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${store.hdriFile === 'textures/env/kloppenheim_06_puresky_1k.hdr' ? 'rgba(255,200,120,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  cursor: 'pointer',
+                  background: 'rgba(255,200,120,0.2)',
+                  border: '1px solid rgba(255,200,120,0.3)',
+                  cursor: 'default',
                   transition: '0.2s',
                 }}
               >
                 Небо
-              </button>
-
-              <button
-                onClick={() => {
-                  store.setHdriFile('textures/env/misty_farm_road_2k.hdr')
-                  store.setHdriIntensity(1.5)
-                  store.setHdriBlur(0)
-                  store.setShowHdriBackground(true)
-                }}
-                style={{
-                  flex: 1,
-                  padding: '6px 12px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: store.hdriFile === 'textures/env/misty_farm_road_2k.hdr' ? 600 : 400,
-                  color: 'white',
-                  background: store.hdriFile === 'textures/env/misty_farm_road_2k.hdr'
-                    ? 'rgba(255,200,120,0.2)'
-                    : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${store.hdriFile === 'textures/env/misty_farm_road_2k.hdr' ? 'rgba(255,200,120,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  cursor: 'pointer',
-                  transition: '0.2s',
-                }}
-              >
-                Туман
               </button>
             </div>
             
@@ -197,8 +139,8 @@ export default function AdjustmentsPanel() {
               </div>
               <input
                 type="range"
-                min={0.1}
-                max={3.0}
+                min={0.3}
+                max={2.0}
                 step={0.05}
                 value={store.hdriIntensity}
                 onChange={(e) => {

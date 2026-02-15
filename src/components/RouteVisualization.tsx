@@ -48,8 +48,8 @@ function FloorArrows({ path, pathLength }: { path: THREE.CurvePath<THREE.Vector3
         const point = path.getPointAt(t)
         const tangent = path.getTangentAt(t)
 
-        // Place arrow slightly above the floor
-        arrow.position.set(point.x, 0.15, point.z)
+        // Place arrow slightly above the navmesh surface
+        arrow.position.set(point.x, point.y + 0.15, point.z)
 
         // Rotate arrow to point along path direction
         arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent.normalize())
@@ -153,13 +153,13 @@ export default function RouteVisualization() {
     const curvePath = buildPath(points)
     const len = curvePath.getLength()
 
-    // Create floor line points (all at y = 0.04 to be on the floor)
+    // Create line points following navmesh height + small offset above surface
     const numPoints = Math.max(20, Math.floor(len * 2))
     const linePoints: THREE.Vector3[] = []
     for (let i = 0; i <= numPoints; i++) {
       try {
         const point = curvePath.getPointAt(i / numPoints)
-        linePoints.push(new THREE.Vector3(point.x, 0.04, point.z))
+        linePoints.push(new THREE.Vector3(point.x, point.y + 0.04, point.z))
       } catch {
         // skip
       }
