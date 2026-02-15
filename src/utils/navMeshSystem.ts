@@ -209,9 +209,10 @@ export function findStartTriangle(pos: THREE.Vector3): number {
     let closestId = -1
     let minDist = Infinity
 
-    // Search all candidates and find closest
+    // Search all candidates and find closest, considering 3D distance
     for (const id of searchList) {
         const tri = navMeshTriangles[id]
+        // Use 3D distance to account for height differences (e.g., different floors)
         const dist = pos.distanceToSquared(tri.center)
         if (dist < minDist) {
             minDist = dist
@@ -316,8 +317,14 @@ export function findPathOnNavMesh(startPos: THREE.Vector3, endPos: THREE.Vector3
             // CRITICAL FIX: Do not allow going back to startId directly
             if (neighborId === startId) continue
 
-            const tentativeG = (gScore.get(currentId) || 0) +
-                currentTri.center.distanceTo(navMeshTriangles[neighborId].center)
+            const neighborTri = navMeshTriangles[neighborId]
+            const horizontalDist = currentTri.center.distanceTo(neighborTri.center)
+            
+            // Add penalty for large height differences (prefer paths with gradual height changes)
+            const heightDiff = Math.abs(currentTri.center.y - neighborTri.center.y)
+            const heightPenalty = heightDiff > 2 ? heightDiff * 0.5 : 0 // Penalty for stairs/ramps
+            
+            const tentativeG = (gScore.get(currentId) || 0) + horizontalDist + heightPenalty
 
             if (tentativeG < (gScore.get(neighborId) || Infinity)) {
                 cameFrom.set(neighborId, currentId)
