@@ -1,8 +1,18 @@
 import { OrbitControls, PerspectiveCamera, OrthographicCamera } from '@react-three/drei'
 import { useThree, Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, Component, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { useAppStore } from '../store/appStore'
+
+class CanvasErrorBoundary extends Component<{children: ReactNode}, {error: Error | null}> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  componentDidCatch(error: Error) { console.error('3D Scene error:', error) }
+  render() {
+    if (this.state.error) return <div style={{color:'red',padding:20}}>3D Error: {this.state.error.message}</div>
+    return this.props.children
+  }
+}
 import VenueModelBaked from './VenueModelBaked'
 import UserMarker from './UserMarker'
 import ZoneMarkers from './ZoneMarkers'
@@ -231,12 +241,14 @@ export default function Scene3D() {
 
   return (
     <div className="w-full h-full relative" onClick={handleSceneClick}>
+      <CanvasErrorBoundary>
       <Canvas
         gl={{
           toneMapping: getToneMapping(),
           toneMappingExposure: toneMappingExposure,
           antialias: true,
-          logarithmicDepthBuffer: true,
+          powerPreference: 'high-performance',
+          failIfMajorPerformanceCaveat: false,
         }}
         onCreated={(state) => {
           state.gl.shadowMap.enabled = false
@@ -259,7 +271,7 @@ export default function Scene3D() {
             makeDefault
             position={viewMode === 'first-person' ? undefined : getCameraPosition()}
             fov={viewMode === 'first-person' ? 75 : 55}
-            near={5}
+            near={0.5}
             far={2000}
           />
         )}
@@ -267,6 +279,7 @@ export default function Scene3D() {
         <SceneContent />
         <Effects />
       </Canvas>
+      </CanvasErrorBoundary>
     </div>
   )
 }
