@@ -1,18 +1,8 @@
 import { OrbitControls, PerspectiveCamera, OrthographicCamera } from '@react-three/drei'
 import { useThree, Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, Component, type ReactNode } from 'react'
+import { Suspense, useEffect, useRef, useState, Component, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { useAppStore } from '../store/appStore'
-
-class CanvasErrorBoundary extends Component<{children: ReactNode}, {error: Error | null}> {
-  state = { error: null as Error | null }
-  static getDerivedStateFromError(error: Error) { return { error } }
-  componentDidCatch(error: Error) { console.error('3D Scene error:', error) }
-  render() {
-    if (this.state.error) return <div style={{color:'red',padding:20}}>3D Error: {this.state.error.message}</div>
-    return this.props.children
-  }
-}
 import VenueModelBaked from './VenueModelBaked'
 import UserMarker from './UserMarker'
 import ZoneMarkers from './ZoneMarkers'
@@ -25,6 +15,18 @@ import CameraController, { setOrbitControls } from './CameraController'
 import HDRIEnvironment from './HDRIEnvironment'
 import Effects from './Effects'
 import { NavMeshVisualizer } from './NavMeshVisualizer'
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+class CanvasErrorBoundary extends Component<{children: ReactNode}, {error: Error | null}> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  componentDidCatch(error: Error) { console.error('3D Scene error:', error) }
+  render() {
+    if (this.state.error) return <div style={{color:'red',padding:20}}>3D Error: {this.state.error.message}</div>
+    return this.props.children
+  }
+}
 
 function OrbitControlsWithRef({ viewMode }: { viewMode: string }) {
   const controlsRef = useRef<any>(null)
@@ -161,6 +163,7 @@ export default function Scene3D() {
   const activeBottomPanel = useAppStore(state => state.activeBottomPanel)
   const setActiveBottomPanel = useAppStore(state => state.setActiveBottomPanel)
   const setIsFullscreen = useAppStore(state => state.setIsFullscreen)
+  const [renderError, setRenderError] = useState<string | null>(null)
 
   useEffect(() => {
     const handleResize = () => {
@@ -239,6 +242,20 @@ export default function Scene3D() {
     }
   }
 
+  if (renderError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center" style={{background: '#0a0a0f', color: '#ff6b6b', padding: 20, textAlign: 'center'}}>
+        <div>
+          <p style={{fontSize: 18, marginBottom: 10}}>3D Error</p>
+          <p style={{fontSize: 12, color: '#888'}}>{renderError}</p>
+          <button onClick={() => { setRenderError(null); location.reload() }} style={{marginTop: 15, padding: '8px 20px', background: '#D4AF37', color: '#000', border: 'none', borderRadius: 8, cursor: 'pointer'}}>
+            Перезагрузить
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full h-full relative" onClick={handleSceneClick}>
       <CanvasErrorBoundary>
@@ -246,15 +263,26 @@ export default function Scene3D() {
         gl={{
           toneMapping: getToneMapping(),
           toneMappingExposure: toneMappingExposure,
-          antialias: true,
+          antialias: !isMobile,
           powerPreference: 'high-performance',
           failIfMajorPerformanceCaveat: false,
+          alpha: false,
+          stencil: false,
+          depth: true,
         }}
         onCreated={(state) => {
           state.gl.shadowMap.enabled = false
-          state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+          state.gl.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
+
+          // Listen for WebGL context loss
+          const canvas = state.gl.domElement
+          canvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault()
+            console.error('WebGL context lost')
+            setRenderError('WebGL контекст потерян. Попробуйте перезагрузить страницу.')
+          })
         }}
-        dpr={[1, 2]}
+        dpr={isMobile ? [1, 1.5] : [1, 2]}
       >
         {isOrthographic ? (
           <OrthographicCamera
@@ -277,7 +305,7 @@ export default function Scene3D() {
         )}
 
         <SceneContent />
-        <Effects />
+        {!isMobile && <Effects />}
       </Canvas>
       </CanvasErrorBoundary>
     </div>
