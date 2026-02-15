@@ -113,11 +113,35 @@ function OrbitControlsWithRef({ viewMode }: { viewMode: string }) {
   )
 }
 
+function GLSettingsSync() {
+  const { gl } = useThree()
+  const toneMapping = useAppStore(state => state.toneMapping)
+  const toneMappingExposure = useAppStore(state => state.toneMappingExposure)
+
+  useEffect(() => {
+    gl.toneMappingExposure = toneMappingExposure
+  }, [gl, toneMappingExposure])
+
+  useEffect(() => {
+    switch (toneMapping) {
+      case 'Linear':
+        gl.toneMapping = THREE.LinearToneMapping; break
+      case 'Reinhard':
+        gl.toneMapping = THREE.ReinhardToneMapping; break
+      default:
+        gl.toneMapping = THREE.ACESFilmicToneMapping
+    }
+  }, [gl, toneMapping])
+
+  return null
+}
+
 function SceneContent() {
   const viewMode = useAppStore(state => state.viewMode)
 
   return (
     <>
+      <GLSettingsSync />
       {/* HDRI Environment - освещение и фон */}
       <Suspense fallback={null}>
         <HDRIEnvironment />
